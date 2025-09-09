@@ -1,0 +1,89 @@
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
+import { useAuthStore } from '@/stores/auth.store'
+import { toast } from '@/toast'
+import { handleError } from '@/utils/api'
+
+import CardAuthorizedOrigins from '../create/card-authorized-origins.vue'
+import CardAuthorizedRedirectUris from '../create/card-authorized-redirect-uris.vue'
+import CardForm from '../create/card-form.vue'
+import CardBreadcrumbs from './card-breadcrumbs.vue'
+import { useForm } from './form'
+import { apiRetrieve } from './retrieve.api'
+import { apiUpdate } from './update.api'
+
+const form = useForm()
+const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
+
+const isLoading = ref(false)
+const isSaving = ref(false)
+
+onMounted(async () => {
+  if (authStore.role !== 'developer') {
+    router.replace('/unauthorized')
+  }
+
+  try {
+    isLoading.value = true
+    const response = await apiRetrieve(route.params.id as string)
+    if (response) {
+      form.data.name = response.name
+      form.data.authorized_origins = response.authorized_origins
+      form.data.authorized_redirect_uris = response.authorized_redirect_uris
+    }
+  } catch (error) {
+    const errorResponse = handleError(error)
+    if (errorResponse.message) {
+      toast(errorResponse.message, {
+        lists: errorResponse.lists,
+        color: 'danger'
+      })
+    }
+  } finally {
+    isLoading.value = false
+  }
+})
+
+const update = async () => {
+  try {
+    isSaving.value = true
+    const response = await apiUpdate(route.params.id as string, form.data)
+    if (response?.matched_count) {
+      toast('Update success', { color: 'success' })
+      await router.push(`/clients/${route.params.id}`)
+    }
+  } catch (error) {
+    const errorResponse = handleError(error)
+    if (errorResponse.errors) {
+      form.errors.name = errorResponse.errors.name || []
+      form.errors.authorized_origins = errorResponse.errors.authorized_origins || []
+      form.errors.authorized_redirect_uris = errorResponse.errors.authorized_redirect_uris || []
+    }
+    if (errorResponse.message) {
+      toast(errorResponse.message, {
+        lists: errorResponse.lists,
+        color: 'danger'
+      })
+    }
+  } finally {
+    isSaving.value = false
+  }
+}
+</script>
+
+<template>
+  <div class="content-container">
+    <card-breadcrumbs />
+
+    <card-form v-model:data="form.data" v-model:errors="form.errors" v-model:is-saving="isSaving" />
+    <card-authorized-origins v-model:data="form.data" v-model:errors="form.errors" v-model:is-saving="isSaving" />
+    <card-authorized-redirect-uris v-model:data="form.data" v-model:errors="form.errors" v-model:is-saving="isSaving" />
+    <div class="flex gap-2">
+      <base-button :is-loading="isSaving" color="primary" @click="update">Update</base-button>
+    </div>
+  </div>
+</template>
