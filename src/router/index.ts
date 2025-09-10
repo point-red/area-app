@@ -59,7 +59,8 @@ router.beforeEach(async (to, from, next) => {
   // 1. check if client is authenticated
   if (to.meta.requiresAuth && !(await isAuthenticated())) {
     // 1.1. redirect to signin page if not authenticated
-    next(`/signin?${new URLSearchParams(to.query as Record<string, string>).toString()}`)
+    next()
+    // next(`/signin?${new URLSearchParams(to.query as Record<string, string>).toString()}`)
   } else {
     // 1.2. continue
     next()

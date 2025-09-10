@@ -1,5 +1,5 @@
 export default {
-  path: '/master/areas',
+  path: '/master/roles',
   children: [
     {
       path: '',

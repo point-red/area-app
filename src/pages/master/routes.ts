@@ -1,4 +1,6 @@
 import areaRoutes from './areas/routes'
+import roleRoutes from './roles/routes'
+import userRoutes from './users/routes'
 
 export default {
   name: 'Master',
@@ -9,6 +11,8 @@ export default {
       component: () => import('./index.vue'),
       meta: { requiresAuth: true }
     },
+    userRoutes,
+    roleRoutes,
     areaRoutes
   ]
 }

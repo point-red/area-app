@@ -29,13 +29,7 @@ const {
   resetTableSetting
 } = useTableSetting({
   columns: {
-    province: { label: 'Province', isVisible: true, isSelectable: false },
-    type_of_area: { label: 'Type of Area', isVisible: true, isSelectable: true },
-    name_of_area: { label: 'Name of Area', isVisible: true, isSelectable: true },
-    district: { label: 'District', isVisible: true, isSelectable: true },
-    subdistrict: { label: 'Subdistrict', isVisible: true, isSelectable: true },
-    target_value: { label: 'Target Value', isVisible: true, isSelectable: true },
-    target_outlet: { label: 'Target Outlet', isVisible: true, isSelectable: true },
+    name: { label: 'Name', isVisible: true, isSelectable: false },
   }
 })
 
@@ -56,13 +50,9 @@ const {
   initialFilter: {
     all: '',
     name: '',
-    age: '',
-    nationality: ''
   },
   initialSortKeys: {
     name: 0,
-    age: 0,
-    nationality: 0
   }
 })
 
@@ -75,11 +65,11 @@ const router = useRouter()
 
 /**
  * Reactive references for:
- * - areas data retrieved from API
+ * - roles data retrieved from API
  * - loading state
  * - control flags to prevent unnecessary watcher triggers
  */
-const areas = ref<IData[]>()
+const roles = ref<IData[]>()
 const isInitialSetup = ref(true)
 const isLoading = ref(false)
 const skipNextFilterWatch = ref(false)
@@ -96,7 +86,7 @@ const deleteModalRef = ref()
  */
 const onPageUpdate = async () => {
   if (!isInitialSetup.value) {
-    await getAreas(pagination.page)
+    await getRoles(pagination.page)
     await updateQueryParams({ 'page': pagination.page.toString() })
   }
 }
@@ -107,7 +97,7 @@ const onPageUpdate = async () => {
 const resetPageAndFetch = async () => {
   pagination.page = 1
   await updateQueryParams({ page: 1 })
-  await getAreas()
+  await getRoles()
 }
 
 /**
@@ -115,7 +105,7 @@ const resetPageAndFetch = async () => {
  * Manages loading state and error handling with user notifications.
  * @param page - Current page number to fetch (default 1)
  */
-const getAreas = async (page = 1) => {
+const getRoles = async (page = 1) => {
   try {
     isLoading.value = true
     const response = await apiRetrieveAll({
@@ -124,7 +114,7 @@ const getAreas = async (page = 1) => {
       page,
       page_size: pagination.page_size
     })
-    areas.value = response.data
+    roles.value = response.data
     Object.assign(pagination, response.pagination)
   } catch (error) {
     const errorResponse = handleError(error)
@@ -156,22 +146,22 @@ const onResetFilter = async () => {
   resetFilter()
 
   // Fetch data without any filters applied
-  await getAreas()
+  await getRoles()
 
   isInitialSetup.value = false
 }
 
 /**
- * Opens the delete confirmation modal for a specific area.
+ * Opens the delete confirmation modal for a specific role.
  * Also closes the row menu popover.
- * @param area - The data row to delete
+ * @param role - The data row to delete
  * @param index - Index of the row for UI references
  */
-const onDeleteModal = (area: IData, index: number) => {
+const onDeleteModal = (role: IData, index: number) => {
   rowMenuRef.value[index].toggle(false)
   deleteModalRef.value.toggleModal(true, {
-    _id: area._id,
-    label: `${area.name}`
+    _id: role._id,
+    label: `${role.name}`
   })
 }
 
@@ -180,7 +170,7 @@ const onDeleteModal = (area: IData, index: number) => {
  * Refreshes the data list.
  */
 const onDeleted = async () => {
-  await getAreas()
+  await getRoles()
 }
 
 /**
@@ -207,7 +197,7 @@ onMounted(async () => {
 
 
   // Fetch initial data
-  await getAreas(pagination.page)
+  await getRoles(pagination.page)
 
   isInitialSetup.value = false
 })
@@ -264,11 +254,11 @@ watch(sort, async () => {
 
 <template>
   <base-card>
-    <template #header>Areas</template>
+    <template #header>Roles</template>
 
     <div class="my-5 flex gap-2">
-      <!-- Button to navigate to create new area page -->
-      <router-link to="/master/areas/create">
+      <!-- Button to navigate to create new role page -->
+      <router-link to="/master/roles/create">
         <base-button color="info" shape="sharp" class="h-full">
           <base-icon class="flex-0" icon="i-fal-file-plus" /> Create
         </base-button>
@@ -314,13 +304,6 @@ watch(sort, async () => {
             <th v-if="columns['name']?.isVisible">
               <base-input v-model="filter.name" placeholder="Search..." :readonly="isLoading" border="none" />
             </th>
-            <th v-if="columns['age']?.isVisible">
-              <base-input v-model="filter.age" placeholder="Search..." :readonly="isLoading" border="none" />
-            </th>
-            <th v-if="columns['nationality']?.isVisible">
-              <base-choosen title="Nationality" v-model="filter.nationality" :options="nationalityOptions"
-                :readonly="isLoading" placeholder="Search" border="none" />
-            </th>
           </tr>
         </thead>
 
@@ -334,8 +317,8 @@ watch(sort, async () => {
             </td>
           </tr>
 
-          <!-- Show no data found message if no areas and query params exist -->
-          <tr v-if="!isLoading && areas?.length === 0 && route.query">
+          <!-- Show no data found message if no roles and query params exist -->
+          <tr v-if="!isLoading && roles?.length === 0 && route.query">
             <td :colspan="countVisibleColumns + 1">
               <div class="w-full flex-col p-10 items-center justify-center gap-2 text-center">
                 <p class="text-xl">Data Not Found</p>
@@ -347,9 +330,9 @@ watch(sort, async () => {
             </td>
           </tr>
 
-          <!-- Render rows of area data when available -->
-          <template v-if="!isLoading && areas && areas.length > 0">
-            <tr v-for="(area, index) in areas" :key="index">
+          <!-- Render rows of role data when available -->
+          <template v-if="!isLoading && roles && roles.length > 0">
+            <tr v-for="(role, index) in roles" :key="index">
               <td>
                 <!-- Row action menu -->
                 <base-popover placement="bottom" ref="rowMenuRef">
@@ -359,7 +342,7 @@ watch(sort, async () => {
                   <template #content>
                     <base-card class="p-0! gap-0!">
                       <div class="flex flex-col">
-                        <router-link :to="`/master/areas/${area._id}`">
+                        <router-link :to="`/master/roles/${role._id}`">
                           <base-button variant="text" color="info"
                             class="w-full py-1! px-3! m-0! flex items-center justify-start text-left!">
                             <base-icon class="flex-0" icon="i-fal-book-open-cover" />
@@ -367,7 +350,7 @@ watch(sort, async () => {
                           </base-button>
                         </router-link>
                         <base-divider orientation="vertical" class="my-0!" />
-                        <router-link :to="`/master/areas/${area._id}/edit`">
+                        <router-link :to="`/master/roles/${role._id}/edit`">
                           <base-button variant="text" color="info"
                             class="w-full py-1! px-3! m-0! flex items-center justify-start text-left!">
                             <base-icon class="flex-0" icon="i-fal-file-pen" />
@@ -375,7 +358,7 @@ watch(sort, async () => {
                           </base-button>
                         </router-link>
                         <base-divider orientation="vertical" class="my-0!" />
-                        <base-button @click="onDeleteModal(area, index)" variant="text" color="danger"
+                        <base-button @click="onDeleteModal(role, index)" variant="text" color="danger"
                           class="w-full py-1! px-3! m-0! flex items-center justify-start text-left!">
                           <base-icon class="flex-0" icon="i-fal-trash-xmark" />
                           <p class="flex-1">Delete</p>
@@ -386,12 +369,10 @@ watch(sort, async () => {
                 </base-popover>
               </td>
 
-              <!-- Area fields rendered conditionally based on column visibility -->
+              <!-- Role fields rendered conditionally based on column visibility -->
               <td v-if="columns['name']?.isVisible">
-                <router-link :to="`/master/areas/${area._id}`" class="text-blue">{{ area.name }}</router-link>
+                <router-link :to="`/master/roles/${role._id}`" class="text-blue">{{ role.name }}</router-link>
               </td>
-              <td v-if="columns['age']?.isVisible">{{ area.age }}</td>
-              <td v-if="columns['nationality']?.isVisible">{{ area.nationality?.label }}</td>
             </tr>
           </template>
         </tbody>

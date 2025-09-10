@@ -7,7 +7,8 @@ import AppMenu from '@/components/app-menu.vue'
 const menus = ref<any[]>([])
 
 onMounted(() => {
-  menus.value.push({ name: 'Area', path: '/master/area', icon: 'i-far-map-location' })
+  menus.value.push({ name: 'User', path: '/master/users', icon: 'i-far-users' })
+  menus.value.push({ name: 'Area', path: '/master/areas', icon: 'i-far-map-location' })
 })
 </script>
 

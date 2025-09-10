@@ -73,7 +73,9 @@ watch(
         name: 'Master',
         dataTestid: 'menu-master',
         submenu: [
-          { name: 'Area', path: '/master/area', dataTestid: 'submenu-area', }
+          { name: 'User', path: '/master/users', dataTestid: 'submenu-user', },
+          { name: 'Role', path: '/master/roles', dataTestid: 'submenu-role', },
+          { name: 'Area', path: '/master/areas', dataTestid: 'submenu-area', }
         ]
       })
     }

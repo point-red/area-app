@@ -11,13 +11,12 @@ import { toast } from '@/toast'
 import { handleError } from '@/utils/api'
 
 import ModalDelete from '../components/delete/modal-delete.vue'
-import { nationalityOptions } from '../nationalities'
 import { apiRetrieveAll, type IData } from './retrieve-all.api'
 
 /**
  * Setup table columns and visibility state using the useTableSetting composable.
  * - name: visible and not selectable
- * - age and nationality: visible and selectable
+ * - username and email: visible and selectable
  */
 const {
   isOpen, open, close,
@@ -29,19 +28,15 @@ const {
   resetTableSetting
 } = useTableSetting({
   columns: {
-    province: { label: 'Province', isVisible: true, isSelectable: false },
-    type_of_area: { label: 'Type of Area', isVisible: true, isSelectable: true },
-    name_of_area: { label: 'Name of Area', isVisible: true, isSelectable: true },
-    district: { label: 'District', isVisible: true, isSelectable: true },
-    subdistrict: { label: 'Subdistrict', isVisible: true, isSelectable: true },
-    target_value: { label: 'Target Value', isVisible: true, isSelectable: true },
-    target_outlet: { label: 'Target Outlet', isVisible: true, isSelectable: true },
+    name: { label: 'Name', isVisible: true, isSelectable: false },
+    username: { label: 'Username', isVisible: true, isSelectable: true },
+    email: { label: 'Email', isVisible: true, isSelectable: true }
   }
 })
 
 /**
  * Setup filtering, sorting, and pagination state using the useTableFilter composable.
- * - initial filters for all, name, age, nationality are empty
+ * - initial filters for all, name, username, email are empty
  * - initial sort keys all set to 0 (no sort)
  */
 const {
@@ -56,13 +51,13 @@ const {
   initialFilter: {
     all: '',
     name: '',
-    age: '',
-    nationality: ''
+    username: '',
+    email: ''
   },
   initialSortKeys: {
     name: 0,
-    age: 0,
-    nationality: 0
+    username: 0,
+    email: 0
   }
 })
 
@@ -75,11 +70,11 @@ const router = useRouter()
 
 /**
  * Reactive references for:
- * - areas data retrieved from API
+ * - users data retrieved from API
  * - loading state
  * - control flags to prevent unnecessary watcher triggers
  */
-const areas = ref<IData[]>()
+const users = ref<IData[]>()
 const isInitialSetup = ref(true)
 const isLoading = ref(false)
 const skipNextFilterWatch = ref(false)
@@ -96,7 +91,7 @@ const deleteModalRef = ref()
  */
 const onPageUpdate = async () => {
   if (!isInitialSetup.value) {
-    await getAreas(pagination.page)
+    await getUsers(pagination.page)
     await updateQueryParams({ 'page': pagination.page.toString() })
   }
 }
@@ -107,7 +102,7 @@ const onPageUpdate = async () => {
 const resetPageAndFetch = async () => {
   pagination.page = 1
   await updateQueryParams({ page: 1 })
-  await getAreas()
+  await getUsers()
 }
 
 /**
@@ -115,7 +110,7 @@ const resetPageAndFetch = async () => {
  * Manages loading state and error handling with user notifications.
  * @param page - Current page number to fetch (default 1)
  */
-const getAreas = async (page = 1) => {
+const getUsers = async (page = 1) => {
   try {
     isLoading.value = true
     const response = await apiRetrieveAll({
@@ -124,7 +119,7 @@ const getAreas = async (page = 1) => {
       page,
       page_size: pagination.page_size
     })
-    areas.value = response.data
+    users.value = response.data
     Object.assign(pagination, response.pagination)
   } catch (error) {
     const errorResponse = handleError(error)
@@ -156,22 +151,22 @@ const onResetFilter = async () => {
   resetFilter()
 
   // Fetch data without any filters applied
-  await getAreas()
+  await getUsers()
 
   isInitialSetup.value = false
 }
 
 /**
- * Opens the delete confirmation modal for a specific area.
+ * Opens the delete confirmation modal for a specific user.
  * Also closes the row menu popover.
- * @param area - The data row to delete
+ * @param user - The data row to delete
  * @param index - Index of the row for UI references
  */
-const onDeleteModal = (area: IData, index: number) => {
+const onDeleteModal = (user: IData, index: number) => {
   rowMenuRef.value[index].toggle(false)
   deleteModalRef.value.toggleModal(true, {
-    _id: area._id,
-    label: `${area.name}`
+    _id: user._id,
+    label: `${user.name}`
   })
 }
 
@@ -180,7 +175,7 @@ const onDeleteModal = (area: IData, index: number) => {
  * Refreshes the data list.
  */
 const onDeleted = async () => {
-  await getAreas()
+  await getUsers()
 }
 
 /**
@@ -207,7 +202,7 @@ onMounted(async () => {
 
 
   // Fetch initial data
-  await getAreas(pagination.page)
+  await getUsers(pagination.page)
 
   isInitialSetup.value = false
 })
@@ -264,16 +259,10 @@ watch(sort, async () => {
 
 <template>
   <base-card>
-    <template #header>Areas</template>
+    <template #header>Users</template>
 
     <div class="my-5 flex gap-2">
-      <!-- Button to navigate to create new area page -->
-      <router-link to="/master/areas/create">
-        <base-button color="info" shape="sharp" class="h-full">
-          <base-icon class="flex-0" icon="i-fal-file-plus" /> Create
-        </base-button>
-      </router-link>
-
+      <!-- Button to navigate to create new user page -->
       <base-input v-model="filter.all" :readonly="isLoading" placeholder="Search..." border="full" class="w-full" />
 
       <!-- Reset filters button -->
@@ -314,12 +303,11 @@ watch(sort, async () => {
             <th v-if="columns['name']?.isVisible">
               <base-input v-model="filter.name" placeholder="Search..." :readonly="isLoading" border="none" />
             </th>
-            <th v-if="columns['age']?.isVisible">
-              <base-input v-model="filter.age" placeholder="Search..." :readonly="isLoading" border="none" />
+            <th v-if="columns['username']?.isVisible">
+              <base-input v-model="filter.username" placeholder="Search..." :readonly="isLoading" border="none" />
             </th>
-            <th v-if="columns['nationality']?.isVisible">
-              <base-choosen title="Nationality" v-model="filter.nationality" :options="nationalityOptions"
-                :readonly="isLoading" placeholder="Search" border="none" />
+            <th v-if="columns['email']?.isVisible">
+              <base-input v-model="filter.email" placeholder="Search..." :readonly="isLoading" border="none" />
             </th>
           </tr>
         </thead>
@@ -334,8 +322,8 @@ watch(sort, async () => {
             </td>
           </tr>
 
-          <!-- Show no data found message if no areas and query params exist -->
-          <tr v-if="!isLoading && areas?.length === 0 && route.query">
+          <!-- Show no data found message if no users and query params exist -->
+          <tr v-if="!isLoading && users?.length === 0 && route.query">
             <td :colspan="countVisibleColumns + 1">
               <div class="w-full flex-col p-10 items-center justify-center gap-2 text-center">
                 <p class="text-xl">Data Not Found</p>
@@ -347,9 +335,9 @@ watch(sort, async () => {
             </td>
           </tr>
 
-          <!-- Render rows of area data when available -->
-          <template v-if="!isLoading && areas && areas.length > 0">
-            <tr v-for="(area, index) in areas" :key="index">
+          <!-- Render rows of user data when available -->
+          <template v-if="!isLoading && users && users.length > 0">
+            <tr v-for="(user, index) in users" :key="index">
               <td>
                 <!-- Row action menu -->
                 <base-popover placement="bottom" ref="rowMenuRef">
@@ -359,7 +347,7 @@ watch(sort, async () => {
                   <template #content>
                     <base-card class="p-0! gap-0!">
                       <div class="flex flex-col">
-                        <router-link :to="`/master/areas/${area._id}`">
+                        <router-link :to="`/master/users/${user._id}`">
                           <base-button variant="text" color="info"
                             class="w-full py-1! px-3! m-0! flex items-center justify-start text-left!">
                             <base-icon class="flex-0" icon="i-fal-book-open-cover" />
@@ -367,7 +355,7 @@ watch(sort, async () => {
                           </base-button>
                         </router-link>
                         <base-divider orientation="vertical" class="my-0!" />
-                        <router-link :to="`/master/areas/${area._id}/edit`">
+                        <router-link :to="`/master/users/${user._id}/edit`">
                           <base-button variant="text" color="info"
                             class="w-full py-1! px-3! m-0! flex items-center justify-start text-left!">
                             <base-icon class="flex-0" icon="i-fal-file-pen" />
@@ -375,7 +363,7 @@ watch(sort, async () => {
                           </base-button>
                         </router-link>
                         <base-divider orientation="vertical" class="my-0!" />
-                        <base-button @click="onDeleteModal(area, index)" variant="text" color="danger"
+                        <base-button @click="onDeleteModal(user, index)" variant="text" color="danger"
                           class="w-full py-1! px-3! m-0! flex items-center justify-start text-left!">
                           <base-icon class="flex-0" icon="i-fal-trash-xmark" />
                           <p class="flex-1">Delete</p>
@@ -386,12 +374,12 @@ watch(sort, async () => {
                 </base-popover>
               </td>
 
-              <!-- Area fields rendered conditionally based on column visibility -->
+              <!-- User fields rendered conditionally based on column visibility -->
               <td v-if="columns['name']?.isVisible">
-                <router-link :to="`/master/areas/${area._id}`" class="text-blue">{{ area.name }}</router-link>
+                <router-link :to="`/master/users/${user._id}`" class="text-blue">{{ user.name }}</router-link>
               </td>
-              <td v-if="columns['age']?.isVisible">{{ area.age }}</td>
-              <td v-if="columns['nationality']?.isVisible">{{ area.nationality?.label }}</td>
+              <td v-if="columns['username']?.isVisible">{{ user.username }}</td>
+              <td v-if="columns['email']?.isVisible">{{ user.email }}</td>
             </tr>
           </template>
         </tbody>

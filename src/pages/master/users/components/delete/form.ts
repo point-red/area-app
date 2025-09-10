@@ -1,37 +1,26 @@
-import { reactive } from 'vue'
+import { reactive  } from 'vue'
 
 export interface IForm {
-  province?: string
-  area_name?: string
-  area_type?: {
-    label: string
-    value: string
-  }
-  notes?: string
+  password?: string
+  reason?: string
 }
 
+
 export interface IFormError {
-  province: string[]
-  area_name: string[]
-  area_type: string[]
-  notes: string[]
+  password: string[]
+  reason: string[]
 }
 
 export function useForm() {
   const defaultForm: IForm = {
-    province: '',
-    area_name: '',
-    area_type: undefined,
-    notes: ''
+    password: '',
+    reason: ''
   }
-
+    
   const defaultFormError: IFormError = {
-    province: [],
-    area_name: [],
-    area_type: [],
-    notes: []
+    password: [],
+    reason: []
   }
-
   const data = reactive<IForm>(defaultForm)
   const errors = reactive<IFormError>(defaultFormError)
 

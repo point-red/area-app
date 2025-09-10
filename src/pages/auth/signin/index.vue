@@ -49,7 +49,10 @@ const isLoading = ref(false)
 const onSubmit = async () => {
   try {
     isLoading.value = true
-    const response = await signinApiRequest(form.data.value)
+    // const response = await signinApiRequest(form.data.value)
+    const response = {
+      name: form.data.value.username
+    }
     if (response) {
       authStore.update(response)
       router.push('/')

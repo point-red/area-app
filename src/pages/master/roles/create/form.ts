@@ -2,8 +2,8 @@ import { reactive } from 'vue'
 
 export interface IForm {
   province?: string
-  area_name?: string
-  area_type?: {
+  role_name?: string
+  role_type?: {
     label: string
     value: string
   }
@@ -12,23 +12,23 @@ export interface IForm {
 
 export interface IFormError {
   province: string[]
-  area_name: string[]
-  area_type: string[]
+  role_name: string[]
+  role_type: string[]
   notes: string[]
 }
 
 export function useForm() {
   const defaultForm: IForm = {
     province: '',
-    area_name: '',
-    area_type: undefined,
+    role_name: '',
+    role_type: undefined,
     notes: ''
   }
 
   const defaultFormError: IFormError = {
     province: [],
-    area_name: [],
-    area_type: [],
+    role_name: [],
+    role_type: [],
     notes: []
   }
 
