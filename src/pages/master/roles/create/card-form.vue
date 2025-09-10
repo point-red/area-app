@@ -22,8 +22,7 @@ const isSaving = defineModel('is-saving', { default: false })
     <template #header>Roles</template>
 
     <div class="flex flex-col gap-4 my-5">
-      <base-input layout="horizontal" border="full" required v-model="data.name" label="Name" :errors="errors.name"
-        :disabled="isSaving" />
+      <base-input layout="horizontal" border="full" required label="Name" :errors="errors.name" :disabled="isSaving" />
 
       <base-table>
         <thead>
@@ -40,41 +39,41 @@ const isSaving = defineModel('is-saving', { default: false })
             <td>User</td>
             <td></td>
             <td>
-              <div class="flex justify-center"><base-checkbox v-model="data.name" /></div>
+              <div class="flex justify-center"><base-checkbox /></div>
             </td>
             <td>
-              <div class="flex justify-center"><base-checkbox v-model="data.name" /></div>
+              <div class="flex justify-center"><base-checkbox /></div>
             </td>
             <td></td>
           </tr>
           <tr>
             <td>Role</td>
             <td>
-              <div class="flex justify-center"><base-checkbox v-model="data.name" /></div>
+              <div class="flex justify-center"><base-checkbox /></div>
             </td>
             <td>
-              <div class="flex justify-center"><base-checkbox v-model="data.name" /></div>
+              <div class="flex justify-center"><base-checkbox /></div>
             </td>
             <td>
-              <div class="flex justify-center"><base-checkbox v-model="data.name" /></div>
+              <div class="flex justify-center"><base-checkbox /></div>
             </td>
             <td>
-              <div class="flex justify-center"><base-checkbox v-model="data.name" /></div>
+              <div class="flex justify-center"><base-checkbox /></div>
             </td>
           </tr>
           <tr>
             <td>Master Area</td>
             <td>
-              <div class="flex justify-center"><base-checkbox v-model="data.name" /></div>
+              <div class="flex justify-center"><base-checkbox /></div>
             </td>
             <td>
-              <div class="flex justify-center"><base-checkbox v-model="data.name" /></div>
+              <div class="flex justify-center"><base-checkbox /></div>
             </td>
             <td>
-              <div class="flex justify-center"><base-checkbox v-model="data.name" /></div>
+              <div class="flex justify-center"><base-checkbox /></div>
             </td>
             <td>
-              <div class="flex justify-center"><base-checkbox v-model="data.name" /></div>
+              <div class="flex justify-center"><base-checkbox /></div>
             </td>
           </tr>
         </tbody>

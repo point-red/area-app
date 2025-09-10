@@ -27,7 +27,7 @@ onMounted(() => {
 <template>
   <RouterView />
   <!-- Toast Notification Component -->
-  <base-toast ref="toastRef" />
+  <!-- <base-toast ref="toastRef" /> -->
 </template>
 
 <style scoped></style>

@@ -13,7 +13,7 @@ onMounted(() => {
   menus.value.push({
     name: 'Master',
     path: '/master',
-    icon: 'i-far-address-card'
+    icon: 'i-fad-address-card'
   })
 })
 </script>
